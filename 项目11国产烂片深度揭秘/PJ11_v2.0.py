@@ -272,3 +272,4 @@ for x in dataQ5tu:
 
 
 show(q5)
+# %%
