@@ -3,11 +3,13 @@
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
-# import seaborn as sns
+import seaborn as sns
 
+plt.rcParams['font.sans-serif'] = ['SimHei']  # 步骤一（替换sans-serif字体）
+plt.rcParams['axes.unicode_minus'] = False    # 步骤二（解决坐标轴负数的负号显示问题）
 # sns.set_style("ticks", {"font.sans-serif": ['simhei', 'Droid Sans Fallback']})
-os.chdir('D:\\code\\2018spyder\\项目12中国城市资本流动问题探索')
-
+# os.chdir('D:\\code\\2018spyder\\项目12中国城市资本流动问题探索')
+os.chdir('D:\\user\\Documents\\00code\\2018spyder\\项目12中国城市资本流动问题探索')
 print('导入模块成功')
 # %%
 data = pd.read_excel('data.xlsx', sheet_name='Sheet1')
@@ -60,3 +62,36 @@ while x < 8:
     plt.grid(linestyle='--', linewidth=1, axis='y', alpha=0.5)
     ax1.legend(loc='best')
     plt.title('同城投资')
+
+# %%
+
+figQ1 = plt.figure(figsize=(14, 20))
+plt.subplots_adjust(hspace=0.5)
+
+x = 0
+for i, j in dataQ11Dif.groupby('年份'):
+    x = x + 2
+    j = j.sort_values('投资企业对数', ascending=False).head(20)
+    j.index = j['投资方所在城市'] + '-' + j['融资方所在城市']
+    ax1 = figQ1.add_subplot(4, 2, x)
+    j['投资企业对数'].plot(kind='bar', ax=ax1,
+                          facecolor='yellowgreen', alpha=0.8,
+                          edgecolor='black', linewidth=2)
+    plt.grid(linestyle='--', linewidth=1, axis='y', alpha=0.5)
+    ax1.legend(loc='best')
+    plt.title('异城投资_%i' % i)
+
+x = -1
+for i, j in dataQ11Sam.groupby('年份'):
+    x = x + 2
+    j = j.sort_values('投资企业对数', ascending=False).head(20)
+    j.index = j['投资方所在城市']
+    ax1 = figQ1.add_subplot(4, 2, x)
+    j['投资企业对数'].plot(kind='bar', ax=ax1,
+                          facecolor='lightskyblue', alpha=0.8,
+                          edgecolor='black', linewidth=2)
+    plt.grid(linestyle='--', linewidth=1, axis='y', alpha=0.5)
+    ax1.legend(loc='best')
+    plt.title('同城投资_%i' % i)
+del i, j, x
+# %%
