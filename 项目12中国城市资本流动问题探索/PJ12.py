@@ -8,8 +8,8 @@ import seaborn as sns
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 步骤一（替换sans-serif字体）
 plt.rcParams['axes.unicode_minus'] = False    # 步骤二（解决坐标轴负数的负号显示问题）
 # sns.set_style("ticks", {"font.sans-serif": ['simhei', 'Droid Sans Fallback']})
-os.chdir('D:\\code\\2018spyder\\项目12中国城市资本流动问题探索')
-# os.chdir('D:\\user\\Documents\\00code\\2018spyder\\项目12中国城市资本流动问题探索')
+# os.chdir('D:\\code\\2018spyder\\项目12中国城市资本流动问题探索')
+os.chdir('D:\\user\\Documents\\00code\\2018spyder\\项目12中国城市资本流动问题探索')
 print('导入模块成功')
 # %%
 data = pd.read_excel('data.xlsx', sheet_name='Sheet1')
