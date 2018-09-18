@@ -9,8 +9,8 @@ import seaborn as sns
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 步骤一（替换sans-serif字体）
 plt.rcParams['axes.unicode_minus'] = False    # 步骤二（解决坐标轴负数的负号显示问题）
 # sns.set_style("ticks", {"font.sans-serif": ['simhei', 'Droid Sans Fallback']})
-os.chdir('D:\\code\\2018spyder\\项目12中国城市资本流动问题探索')
-# os.chdir('D:\\user\\Documents\\00code\\2018spyder\\项目12中国城市资本流动问题探索')
+# os.chdir('D:\\code\\2018spyder\\项目12中国城市资本流动问题探索')
+os.chdir('D:\\user\\Documents\\00code\\2018spyder\\项目12中国城市资本流动问题探索')
 print('导入模块成功')
 # %%
 data = pd.read_excel('data.xlsx', sheet_name='Sheet1')
@@ -94,7 +94,7 @@ dataQ2 = pd.merge(dataQ2, dataCity[['城市名称', '经度', '纬度']], left_o
 del dataQ2['城市名称']
 dataQ2.rename(columns={'经度': 'rzLng', '纬度': 'rzLat'}, inplace=True)
 # %%Q2.2
-dataQ22 = data[['投资方所在城市', '融资方所在城市', '投资企业对数']]
+dataQ22 = dataQ11Dif[['投资方所在城市', '融资方所在城市', '投资企业对数']]
 dataQ22.columns = ['source', 'target', 'weight']
 dataQ22['weight'] = (dataQ22['weight'] - dataQ22['weight'].min()) / (dataQ22['weight'].max() - dataQ22['weight'].min())
 dataQ22.to_csv('./输出/Q22Line.csv', index=0, encoding='utf_8')
@@ -105,3 +105,8 @@ dataQ22Point.columns = ['Id', 'Label']
 dataQ22Point['Label'] = dataQ22Point['Id']
 dataQ22Point['Label'][20:] = np.nan
 dataQ22Point.to_csv('./输出/Q22Point.csv', index=0, encoding='utf_8')
+
+dataQ2.to_csv('./输出/Q22Qgis.csv', index=0, encoding='utf_8')
+# %%Q2删除
+del dataQ22, dataQ22Point
+
