@@ -8,8 +8,8 @@ import seaborn as sns
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 步骤一（替换sans-serif字体）
 plt.rcParams['axes.unicode_minus'] = False    # 步骤二（解决坐标轴负数的负号显示问题）
 # sns.set_style("ticks", {"font.sans-serif": ['simhei', 'Droid Sans Fallback']})
-# os.chdir('D:\\code\\2018spyder\\项目12中国城市资本流动问题探索')
-os.chdir('D:\\user\\Documents\\00code\\2018spyder\\项目12中国城市资本流动问题探索')
+os.chdir('D:\\code\\2018spyder\\项目12中国城市资本流动问题探索')
+# os.chdir('D:\\user\\Documents\\00code\\2018spyder\\项目12中国城市资本流动问题探索')
 print('导入模块成功')
 # %%
 data = pd.read_excel('data.xlsx', sheet_name='Sheet1')
@@ -79,16 +79,27 @@ for i, j in dataQ11Sam.groupby('年份'):
     plt.title('同城投资_%i' % i)
 del i, j, x
 # %%Q1.1删除
-del dataQ11SamTu, dataQ11DifTu, dataQ11Sam, dataQ11Dif
-# %%
+del dataQ11SamTu, dataQ11DifTu, dataQ11Sam
+# %%Q2.1
 dataCity = pd.read_excel('中国城市代码对照表.xlsx', sheet_name='Sheet1')
-dataQ2 = data[['投资方所在城市', '融资方所在城市', '投资企业对数']].groupby(['投资方所在城市', '融资方所在城市']).sum()
+dataQ2 = dataQ11Dif[['投资方所在城市', '融资方所在城市', '投资企业对数']].groupby(['投资方所在城市', '融资方所在城市']).sum()
 dataQ2 = dataQ2.reset_index()
 
 dataQ2 = pd.merge(dataQ2, dataCity[['城市名称', '经度', '纬度']], left_on='投资方所在城市', right_on='城市名称')
 del dataQ2['城市名称']
 dataQ2.rename(columns={'经度': 'tzLng', '纬度': 'tzLat'}, inplace=True)
 
-dataQ2 = pd.merge(dataQ2, dataCity[['城市名称', '经度', '纬度']], left_on='融资方所在城市', right_on='城市名称')
+dataQ2 = pd.merge(dataQ2, dataCity[['城市名称', '经度', '纬度']], left_on='融资方所在城市', right_on='城市名称').sort_values('投资企业对数', ascending=False)
 del dataQ2['城市名称']
 dataQ2.rename(columns={'经度': 'rzLng', '纬度': 'rzLat'}, inplace=True)
+# %%Q2.2
+dataQ22 = dataQ2[['投资方所在城市', '融资方所在城市', '投资企业对数']].head(20)
+dataQ22.columns = ['source', 'target', 'weight']
+dataQ22.to_csv('./输出/Q22Line.csv', index=0, encoding='utf_8')
+
+dataQ22Lis = list(dataQ22['source'])
+dataQ22Lis.extend(list(dataQ22['target']))
+dataQ22Lis = list(set(dataQ22Lis))
+dataQ22Lis = pd.DataFrame({'Id': dataQ22Lis,
+                           'Label': dataQ22Lis})
+dataQ22Lis.to_csv('./输出/Q22Point.csv', index=0, encoding='utf_8')
