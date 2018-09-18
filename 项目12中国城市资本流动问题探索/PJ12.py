@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pandas as pd
+import numpy as np
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -93,13 +94,14 @@ dataQ2 = pd.merge(dataQ2, dataCity[['城市名称', '经度', '纬度']], left_o
 del dataQ2['城市名称']
 dataQ2.rename(columns={'经度': 'rzLng', '纬度': 'rzLat'}, inplace=True)
 # %%Q2.2
-dataQ22 = dataQ2[['投资方所在城市', '融资方所在城市', '投资企业对数']].head(20)
+dataQ22 = data[['投资方所在城市', '融资方所在城市', '投资企业对数']]
 dataQ22.columns = ['source', 'target', 'weight']
+dataQ22['weight'] = (dataQ22['weight'] - dataQ22['weight'].min()) / (dataQ22['weight'].max() - dataQ22['weight'].min())
 dataQ22.to_csv('./输出/Q22Line.csv', index=0, encoding='utf_8')
 
-dataQ22Lis = list(dataQ22['source'])
-dataQ22Lis.extend(list(dataQ22['target']))
-dataQ22Lis = list(set(dataQ22Lis))
-dataQ22Lis = pd.DataFrame({'Id': dataQ22Lis,
-                           'Label': dataQ22Lis})
-dataQ22Lis.to_csv('./输出/Q22Point.csv', index=0, encoding='utf_8')
+dataQ22Point = dataQ22[['source', 'weight']].groupby('source').sum().sort_values('weight', ascending=False)
+dataQ22Point = dataQ22Point.reset_index()
+dataQ22Point.columns = ['Id', 'Label']
+dataQ22Point['Label'] = dataQ22Point['Id']
+dataQ22Point['Label'][20:] = np.nan
+dataQ22Point.to_csv('./输出/Q22Point.csv', index=0, encoding='utf_8')
