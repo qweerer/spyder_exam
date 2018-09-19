@@ -109,30 +109,33 @@ dataQ22Point.to_csv('./输出/Q22Point.csv', index=0, encoding='utf_8')
 dataQ2.to_csv('./输出/Q22Qgis.csv', index=0, encoding='utf_8')
 # %%Q2删除
 del dataQ22, dataQ22Point
-# %%
+# %%Q3 过去4年投资数与融资数城市的top10
 dataQ3Stake = dataQ11Dif[['投资方所在城市', '投资企业对数']].groupby('投资方所在城市').sum().sort_values('投资企业对数', ascending=False).reset_index()[:10]
 dataQ3Attract = dataQ11Dif[['融资方所在城市', '投资企业对数']].groupby('融资方所在城市').sum().sort_values('投资企业对数', ascending=False).reset_index()[:10]
-dataQ3Stake.columns = ['A','value']
-dataQ3Attract.columns = ['A','value']
+dataQ3Stake.columns = ['A', 'value']
+dataQ3Attract.columns = ['A', 'value']
 
-dataQ3List = pd.concat([dataQ3Stake,dataQ3Attract])
+dataQ3List = pd.concat([dataQ3Stake, dataQ3Attract])
 dataQ3List = dataQ3List.groupby('A').count()
 
-dataQ3 = pd.merge(dataQ3List,dataQ2,left_on='A',right_on='投资方所在城市',how = 'outer')
-dataQ3 = pd.merge(dataQ3List,dataQ3,left_on='A',right_on='融资方所在城市',how = 'outer')
-dataQ3 = dataQ3[(dataQ3['value_x']>0) | (dataQ3['value_y']>0)]
+dataQ3 = pd.merge(dataQ3List, dataQ2, left_on='A', right_on='投资方所在城市', how='outer')
+dataQ3 = pd.merge(dataQ3List, dataQ3, left_on='A', right_on='融资方所在城市', how='outer')
+dataQ3 = dataQ3[(dataQ3['value_x'] > 0) | (dataQ3['value_y'] > 0)]
 del dataQ3['value_x'], dataQ3['value_y']
-
+print('投资数Top10为：', dataQ3Stake)
+print('融资数Top10为：', dataQ3Stake)
 
 # %%
 dataQ3Stake.index = dataQ3Stake['A']
+dataQ3Stake.index.name = ''
 dataQ3Attract.index = dataQ3Attract['A']
+dataQ3Attract.index.name = ''
 
 figQ31 = plt.figure(figsize=(8, 7))
 plt.subplots_adjust(hspace=0.3)
 
 ax1 = figQ31.add_subplot(2, 1, 1)
-dataQ3Stake['value'].plot(kind='bar', ax=ax1,
+dataQ3Stake['value'].plot(kind='bar', ax=ax1, rot=0,
                           facecolor='yellowgreen', alpha=0.8,
                           edgecolor='black', linewidth=2)
 plt.grid(linestyle='--', linewidth=1, axis='y', alpha=0.5)
@@ -140,19 +143,31 @@ plt.title('投资方所在城市')
 
 
 ax2 = figQ31.add_subplot(2, 1, 2)
-dataQ3Attract['value'].plot(kind='bar', ax=ax2,
+dataQ3Attract['value'].plot(kind='bar', ax=ax2, rot=0,
                             facecolor='lightskyblue', alpha=0.8,
                             edgecolor='black', linewidth=2)
 plt.grid(linestyle='--', linewidth=1, axis='y', alpha=0.5)
-plt.title('投资方所在城市')
+plt.title('融资方所在城市')
+# %%
+del dataQ3Attract, dataQ3Stake, dataQ3List
+# %%Q3.2
+dataQ3 = pd.DataFrame()
+for i, j in dataQ11Dif.groupby('融资方所在城市'):
+    for x, y in j.groupby('年份'):
+        z = y[y['投资企业对数'] == y['投资企业对数'].max()].copy()
+        z = z.drop_duplicates(subset=['年份'], keep='first')  # 可能有两个城市投资数相同，这里选择第一个投资的
+        if z['投资方所在城市'].iloc[0] in ['北京', '深圳', '上海']:
+            z['阵营'] = 1
+        else:
+            z['阵营'] = 0
+        dataQ3 = pd.concat([dataQ3, z])
+    print(i)
 
-
-
-
-
-
-
-
-
-
-
+del i, j, x, y, z
+# %%
+dataQ3Pic = pd.DataFrame()
+for i, j in dataQ3.groupby('年份'):
+    z = j[['阵营', '年份']].groupby('阵营').count().T
+    z.rename(columns={1: '北上深阵营数量', 0: '非北上深阵营数量'}, inplace=True)
+    z['年份'] = i
+    dataQ3Pic = pd.concat([dataQ3Pic, z])
