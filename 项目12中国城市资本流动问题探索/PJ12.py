@@ -9,8 +9,8 @@ import seaborn as sns
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 步骤一（替换sans-serif字体）
 plt.rcParams['axes.unicode_minus'] = False    # 步骤二（解决坐标轴负数的负号显示问题）
 # sns.set_style("ticks", {"font.sans-serif": ['simhei', 'Droid Sans Fallback']})
-os.chdir('D:\\code\\2018spyder\\项目12中国城市资本流动问题探索')
-# os.chdir('D:\\user\\Documents\\00code\\2018spyder\\项目12中国城市资本流动问题探索')
+# os.chdir('D:\\code\\2018spyder\\项目12中国城市资本流动问题探索')
+os.chdir('D:\\user\\Documents\\00code\\2018spyder\\项目12中国城市资本流动问题探索')
 print('导入模块成功')
 # %%
 data = pd.read_excel('data.xlsx', sheet_name='Sheet1')
@@ -163,11 +163,39 @@ for i, j in dataQ11Dif.groupby('融资方所在城市'):
         dataQ3 = pd.concat([dataQ3, z])
     print(i)
 
-del i, j, x, y, z
-# %%
+
 dataQ3Pic = pd.DataFrame()
 for i, j in dataQ3.groupby('年份'):
     z = j[['阵营', '年份']].groupby('阵营').count().T
     z.rename(columns={1: '北上深阵营数量', 0: '非北上深阵营数量'}, inplace=True)
     z['年份'] = i
     dataQ3Pic = pd.concat([dataQ3Pic, z])
+
+dataQ3Pic.index = dataQ3Pic['年份']
+dataQ3Pic['北上深阵营占比'] = dataQ3Pic['北上深阵营数量'] / (dataQ3Pic['北上深阵营数量'] + dataQ3Pic['非北上深阵营数量'])
+del i, j, x, y, z, dataQ3Pic['年份']
+print(dataQ3Pic)
+dataQ3Pic.index = dataQ3Pic.index.astype(str)
+# %%
+figQ32 = plt.figure(figsize=(10, 5))
+
+ax1 = figQ32.add_subplot(1, 1, 1)
+dataQ3Pic[['北上深阵营数量', '非北上深阵营数量']].plot(kind='bar', stacked=True,
+                                        colormap='Blues_r', edgecolor='black', linewidth=2,
+                                        ax=ax1)
+dataQ3Pic['北上深阵营占比'].plot(secondary_y=True,
+                          style='--o', color='orange',
+                          rot=0, ax=ax1, legend=True)
+plt.grid(linestyle='--', linewidth=1, axis='y', alpha=0.5, color='black')
+
+# %%Q3.3
+
+dataQ3 = pd.merge(dataQ3, dataCity[['城市名称', '经度', '纬度']], left_on='融资方所在城市', right_on='城市名称')
+del dataQ3['城市名称']
+dataQ3.rename(columns={'经度': 'rzLng', '纬度': 'rzLat'}, inplace=True)
+
+# %%
+dataQ3[dataQ3['年份'] == 2013].to_csv('./输出/Q33Year2013.csv', index=0, encoding='utf_8')
+dataQ3[dataQ3['年份'] == 2014].to_csv('./输出/Q33Year2014.csv', index=0, encoding='utf_8')
+dataQ3[dataQ3['年份'] == 2015].to_csv('./输出/Q33Year2015.csv', index=0, encoding='utf_8')
+dataQ3[dataQ3['年份'] == 2016].to_csv('./输出/Q33Year2016.csv', index=0, encoding='utf_8')
