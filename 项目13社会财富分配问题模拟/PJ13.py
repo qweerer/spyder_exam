@@ -26,3 +26,26 @@ fortune[1] = fortune[1]+fortune['+']
 del fortune['+']
 
 # %%
+def game1(data, roundi):
+    if len(data[data[roundi - 1] ==0]) > 0:   
+    # 当数据包含财富值为0的玩家时
+        round_i = pd.DataFrame({'pre_round':data[roundi-1],'lost':0})
+        con = round_i['pre_round'] > 0
+        round_i['lost'][con] = 1               # 设定每轮分配财富之前的情况 → 该轮财富值为0的不需要拿钱给别人
+        round_players_i = round_i[con]         # 筛选出参与游戏的玩家：财富值>0
+        choice_i = pd.Series(np.random.choice(person_n,len(round_players_i)))
+        gain_i = pd.DataFrame({'gain':choice_i.value_counts()})     # 这一轮中每个人随机指定给“谁”1元钱，并汇总这一轮每个人的盈利情况
+        round_i = round_i.join(gain_i)
+        round_i.fillna(0,inplace = True)
+        return round_i['pre_round'] -  round_i['lost'] + round_i['gain']
+        # 合并数据，得到这一轮财富分配的结果
+    else:
+    # 当数据不包含财富值为0的玩家时
+        round_i = pd.DataFrame({'pre_round':data[roundi-1],'lost':1}) # 设定每轮分配财富之前的情况
+        choice_i = pd.Series(np.random.choice(person_n,100))
+        gain_i = pd.DataFrame({'gain':choice_i.value_counts()})       # 这一轮中每个人随机指定给“谁”1元钱，并汇总这一轮每个人的盈利情况
+        round_i = round_i.join(gain_i)
+        round_i.fillna(0,inplace = True)
+        return round_i['pre_round'] -  round_i['lost'] + round_i['gain']
+        # 合并数据，得到这一轮财富分配的结果
+print('finished!')
