@@ -30,16 +30,17 @@ del fortune['+'], gain_r1
 
 # %%
 del fortune[2]
-fortune[2] = pd.DataFrame(pjSelf.processQ1(fortune, 2))
-print(fortune[2].sum())
+fortune[1] = pd.DataFrame(pjSelf.processQ1(fortune, 1))
+print(fortune[1].sum())
 
 # %% 检验函数代码
 
 ccc = pd.DataFrame({'c': np.random.choice([0, 1], size=100)},
                    index=person_n)
 data = fortune.copy()
-data[2][ccc['c'] == 0] = 0
-print(data[2].sum())
+data[1][ccc['c'] == 0] = 0
+print(data[1].sum())
+data[2] = pd.DataFrame(pjSelf.processQ1(data, 2))
 # %%
 
 datac = pd.DataFrame(data[2][data[2] > 0])
@@ -59,7 +60,33 @@ datac[3] = datac[3] + datac['+']
 data = pd.merge(data, datac[[3, '+']], left_index=True, right_index=True, how='outer')
 data = data.fillna(0)
 print(data[3].sum())
-# %%
+# %% 检验图片代码
+
+
+datai = resultQ1.iloc[988]
+plt.figure(figsize=(10, 6))
+plt.bar(datai.index, datai.values, 
+        color='yellowgreen', alpha=0.8, width=0.9,
+        edgecolor='black',linewidth=1)
+plt.ylim((0, 400))
+plt.xlim((-10, 110))
+# plt.title('Round %d' % n)
+plt.xlabel('PlayerID')
+plt.ylabel('Fortune')
+plt.grid(color='gray', linestyle='--', linewidth=0.5)
+# plt.savefig('graph1_round_%d.png' % n, dpi=200)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
