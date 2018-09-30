@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import os
 import time
 # 引用自定义函数
-import PJ13_function
+import PJ13_function.py
 
 # os.chdir('D:\\code\\2018spyder\\项目13社会财富分配问题模拟\\输出')
 os.chdir('.\\0code\\spyder_exam\\项目13社会财富分配问题模拟\\输出')
@@ -29,28 +29,28 @@ fortuneQ1.index.name = 'id'
 print('初始值设定完成')
 # 开始循环
 startTime = time.time()
-for i in range(1,100):
-    fortuneQ1[i] = processQ1(fortuneQ1,i)
+for i in range(1, 100):
+    fortuneQ1[i] = processQ1(fortuneQ1, i)
 resultQ1 = fortuneQ1.T
 endTime = time.time()
-print('问题一总共运行%i秒'%(endTime-startTime))
+print('问题一总共运行%i秒' % (endTime - startTime))
 
 print(resultQ1.tail())
 
 # %%问题1绘制柱状图
 os.chdir(exportQ1NoSort)
 
-Pic1(resultQ1,0,100,10)
-Pic1(resultQ1,100,1000,100)
-Pic1(resultQ1,1000,17400,400)
+Pic1(resultQ1, 0, 100, 10)
+Pic1(resultQ1, 100, 1000, 100)
+Pic1(resultQ1, 1000, 17400, 400)
 
 print("'问题1:不允许借贷—不排序'输出完成")
 
 os.chdir(exportQ1Sort)
 
-Pic2(resultQ1,0,100,10)
-Pic2(resultQ1,100,1000,100)
-Pic2(resultQ1,1000,17400,400)
+Pic2(resultQ1, 0, 100, 10)
+Pic2(resultQ1, 100, 1000, 100)
+Pic2(resultQ1, 1000, 17400, 400)
 
 print("'问题1:不允许借贷—不排序'输出完成")
-del exportQ1NoSort,exportQ1Sort
+del exportQ1NoSort, exportQ1Sort

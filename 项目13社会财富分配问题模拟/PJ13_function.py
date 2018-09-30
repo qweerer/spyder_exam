@@ -8,6 +8,7 @@ print('导入模块完成')
 person_n = [x for x in range(1, 101)]
 # %% 设置过程函数（当资金为0时不支出）
 
+
 def processQ1(dataf, round_i):
     data = dataf.copy()
     if len(data[data[round_i - 1] == 0] > 0):
@@ -43,6 +44,7 @@ def processQ1(dataf, round_i):
 
 # %% 设置过程函数（当资金为0时可以借贷）
 
+
 def processQ2(dataf, round_i):
     data = dataf.copy()
     if len(data[data[round_i - 1] == 0] > 0):
@@ -77,13 +79,15 @@ def processQ2(dataf, round_i):
     return data[round_i]
 
 # %% 设置输出函数-没有按财富值排序
-def Pic1(data,start,end,length):
-    for n in list(range(start,end,length)):
+
+
+def Pic1(data, start, end, length):
+    for n in list(range(start, end, length)):
         datai = data.iloc[n]
-        plt.figure(figsize = (10,6))
-        plt.bar(datai.index,datai.values,color='gray',alpha = 0.8,width = 0.9)
-        plt.ylim((0,400))
-        plt.xlim((-10,110))
+        plt.figure(figsize=(10, 6))
+        plt.bar(datai.index, datai.values, color='gray', alpha=0.8, width=0.9)
+        plt.ylim((0, 400))
+        plt.xlim((-10, 110))
         plt.title('Round %d' % n)
         plt.xlabel('PlayerID')
         plt.ylabel('Fortune')
@@ -91,13 +95,15 @@ def Pic1(data,start,end,length):
         plt.savefig('graph1_round_%d.png' % n, dpi=200)
 # 创建绘图函数1
 # %% 设置输出函数-按财富值排序
-def Pic2(data,start,end,length):
-    for n in list(range(start,end,length)):
+
+
+def Pic2(data, start, end, length):
+    for n in list(range(start, end, length)):
         datai = data.iloc[n].sort_values().reset_index()[n]
-        plt.figure(figsize = (10,6))
-        plt.bar(datai.index,datai.values,color='gray',alpha = 0.8,width = 0.9)
-        plt.ylim((0,400))
-        plt.xlim((-10,110))
+        plt.figure(figsize=(10, 6))
+        plt.bar(datai.index, datai.values, color='gray', alpha=0.8, width=0.9)
+        plt.ylim((0, 400))
+        plt.xlim((-10, 110))
         plt.title('Round %d' % n)
         plt.xlabel('PlayerID')
         plt.ylabel('Fortune')
