@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import os
-import time
-print('导入模块完成')
+print('导入模块完成,PJ13函数')
 
 person_n = [x for x in range(1, 101)]
 # %% 设置过程函数（当资金为0时不支出）

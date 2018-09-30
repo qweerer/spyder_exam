@@ -3,9 +3,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
-import time
 # 引用自定义函数
-import PJ13_function
+import PJ13_function as pjSelf
 # os.chdir('D:\\code\\2018spyder\\项目13社会财富分配问题模拟\\输出')
 os.chdir('.\\0code\\spyder_exam\\项目13社会财富分配问题模拟\\输出')
 
@@ -31,7 +30,7 @@ del fortune['+'], gain_r1
 
 # %%
 del fortune[2]
-fortune[2] = pd.DataFrame(processQ1(fortune, 2))
+fortune[2] = pd.DataFrame(pjSelf.processQ1(fortune, 2))
 print(fortune[2].sum())
 
 # %% 检验函数代码
@@ -60,3 +59,8 @@ datac[3] = datac[3] + datac['+']
 data = pd.merge(data, datac[[3, '+']], left_index=True, right_index=True, how='outer')
 data = data.fillna(0)
 print(data[3].sum())
+# %%
+
+
+
+
