@@ -92,6 +92,7 @@ print(resultQ1.tail())
 del i, startTime, endTime
 
 
+
 # 一些结论
 
 round_17000_2 = pd.DataFrame({'money': game2_result.iloc[17000]}).sort_values(by='money', ascending=False).reset_index()
