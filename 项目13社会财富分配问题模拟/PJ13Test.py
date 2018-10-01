@@ -6,7 +6,7 @@ import os
 # 引用自定义函数
 import PJ13_function as pjSelf
 # os.chdir('D:\\code\\2018spyder\\项目13社会财富分配问题模拟\\输出')
-os.chdir('.\\0code\\spyder_exam\\项目13社会财富分配问题模拟\\输出')
+# os.chdir('.\\0code\\spyder_exam\\项目13社会财富分配问题模拟\\输出')
 
 print('导入模块完成')
 # %%设定初始参数：游戏玩家100人，起始资金100元
@@ -76,10 +76,7 @@ plt.ylabel('Fortune')
 plt.grid(color='gray', linestyle='--', linewidth=0.5)
 # plt.savefig('graph1_round_%d.png' % n, dpi=200)
 
-
-
-
-
+# %%
 
 
 

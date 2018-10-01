@@ -78,14 +78,14 @@ def Pic1(data, start, end, length, theMax):
 # %% 设置输出函数-按财富值排序
 
 
-def Pic2(data, start, end, length, theMax):
+def Pic2(data, start, end, length, theMax, theMin):
     for n in list(range(start, end, length)):
         datai = data.iloc[n].sort_values().reset_index()[n]
         plt.figure(figsize=(10, 6))
         plt.bar(datai.index, datai.values,
                 color='yellowgreen', alpha=0.8, width=0.9,
                 edgecolor='black', linewidth=1)
-        plt.ylim((0, theMax))
+        plt.ylim((theMin, theMax))
         plt.xlim((-5, 105))
         plt.title('Round %d' % n)
         plt.xlabel('PlayerID')
@@ -93,3 +93,22 @@ def Pic2(data, start, end, length, theMax):
         plt.grid(color='gray', linestyle='--', linewidth=0.5)
         plt.savefig('graph2_round_%d.png' % n, dpi=200)
 # 创建绘图函数2
+        
+# %% 设置输出函数-按财富值排序,有颜色判断,数据不能转置
+
+
+def Pic3(data, start, end, length, theMax, theMin):
+    for n in list(range(start, end, length)):
+        datai = data[[n,'color']].sort_values(by = (n)).reset_index()[[n,'color']]
+        plt.figure(figsize=(10, 6))
+        plt.bar(datai.index, datai[n],
+                color=datai['color'], alpha=0.8, width=0.9,
+                edgecolor='black', linewidth=1)
+        plt.ylim((theMin, theMax))
+        plt.xlim((-5, 105))
+        plt.title('Round %d' % n)
+        plt.xlabel('PlayerID')
+        plt.ylabel('Fortune')
+        plt.grid(color='gray', linestyle='--', linewidth=0.5)
+        plt.savefig('graph2_round_%d.png' % n, dpi=200)
+# 创建绘图函数3
