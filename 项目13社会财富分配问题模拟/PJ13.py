@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 import os
 import time
 
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+# 引用自定义函数
 # os.chdir('D:/code/2018spyder/项目13社会财富分配问题模拟')
 os.chdir('/home/qweerer/0code/spyder_exam/项目13社会财富分配问题模拟')
-pathPj13 = os.path.abspath('.')
-# 引用自定义函数
 import PJ13_function as pjSelf
+
+
+pathPj13 = os.path.abspath('.')
 person_n = [x for x in range(1, 101)]
 print('导入模块完成')
 
@@ -18,8 +21,7 @@ exportQ1NoSort = "%s/输出/问题1:不允许借贷—不排序" % pathPj13
 exportQ1Sort = "%s/输出/问题1:不允许借贷—排序" % pathPj13
 exportQ2Sort = "%s/输出/问题2:允许借贷—排序" % pathPj13
 exportQ2SortNeg = "%s/输出/问题2:允许借贷—排序—负债" % pathPj13
-
-exportQ3Sort = "%s/输出/问题3:不允许借贷—努力—排序" % pathPj13
+exportQ3SortEff = "%s/输出/问题3:不允许借贷—排序—努力" % pathPj13
 print('设置系统量完成')
 
 # %% 问题1
@@ -144,5 +146,54 @@ del resultQ22['color']
 resultQ22 = pd.DataFrame({'richman': resultQ22.iloc[-1],
                           'poolman': resultQ22.iloc[0]})
 resultQ22.plot(kind='line', figsize=(10, 6), grid=True)
+# %%
+del resultQ22, resultQ2Max, resultQ2Min
+####################################################
+# %% 问题3 努力的人生
+# person_p(频率参数)在函数文件中创建
+person_c = ['gray' for i in range(100)]
+for i in [1,11,21,31,41,51,61,71,81,91]:
+    person_c[i-1] = 'red'
 
-# %% 问题3
+# %%
+# 设定初始参数：游戏玩家100人，起始资金100元
+fortuneQ3 = pd.DataFrame([100 for i in range(100)], index=person_n)
+fortuneQ3.index.name = 'id'
+print('初始值设定完成')
+
+# 开始循环
+startTime = time.time()
+for i in range(1, 17001):
+    fortuneQ3[i] = pjSelf.processQ4(fortuneQ3, i)
+endTime = time.time()
+print('问题2.1总共运行%i秒' % (endTime - startTime))
+
+print(fortuneQ3.tail())
+del i, startTime, endTime
+fortuneQ3['color'] = person_c
+# %% 问题2.1 绘制柱状图
+resultQ3Max = fortuneQ3[17000].max() + 20
+resultQ3Min = fortuneQ3[17000].min() - 5
+
+os.chdir(exportQ3SortEff)
+
+pjSelf.Pic3(fortuneQ3, 0, 100, 10, resultQ3Max, resultQ3Min)
+pjSelf.Pic3(fortuneQ3, 100, 1000, 100, resultQ3Max, resultQ3Min)
+pjSelf.Pic3(fortuneQ3, 1000, 17001, 400, resultQ3Max, resultQ3Min)
+
+print("'问题3:不允许借贷—排序—努力'输出完成")
+del resultQ3Max, resultQ3Min
+
+####################################################
+# %% 问题4 自建模型
+# 设定初始参数：游戏玩家100人，起始资金100元,国家资金1000元
+fortuneQ4 = pd.DataFrame([100 for i in range(100)], index=person_n)
+fortuneQ4.index.name = 'id'
+print('初始值设定完成')
+fortuneQ40 = 1000
+
+
+
+
+
+

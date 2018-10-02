@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 print('导入模块完成,PJ13函数')
 
 person_n = [x for x in range(1, 101)]
+person_p = [0.899/90 for i in range(100)]
+for i in [1,11,21,31,41,51,61,71,81,91]:
+    person_p[i-1] = 0.0101
 # %% 设置过程函数（当资金为0时不支出）
 
 
@@ -57,6 +60,63 @@ def processQ2(dataf, round_i):
 
     return data[round_i]
 
+# %% 设置过程函数 可以借贷 有给钱倾向
+
+
+def processQ3(dataf, round_i):
+    data = dataf.copy()
+    data[round_i] = data[round_i - 1] - 1
+
+    given = pd.DataFrame({'given': np.random.choice(person_n, size = 100, p = person_p)})
+    given['+'] = 1
+    given = given.groupby('given').count()
+
+    data = pd.merge(data, given, left_index=True, right_index=True, how='outer')
+    data = data.fillna(0)
+    data[round_i] = data[round_i] + data['+']
+
+    return data[round_i]
+
+# %% 设置过程函数 可以借贷 有给钱倾向 根据答案代码进行优化 但并没有太多运行效率提升
+
+
+def processQ4(dataf, round_i):
+    data = dataf.copy()
+    data[round_i] = data[round_i - 1] - 1
+
+    given = pd.Series(np.random.choice(person_n, size = 100, p = person_p))
+    given = pd.DataFrame({'+':given.value_counts()})
+
+    data = data.join(given)
+    data = data.fillna(0)
+    
+    return data[round_i] + data['+']
+
+# %% 设置过程函数 自建模型
+
+
+def processQ5(dataf, round_i):
+    data = pd.DataFrame(dataf[round_i - 1])
+    data.sort_values(by = (round_i - 1)).reset_index()
+    
+    data['-'] = 1
+    data['-'][0:20] = np.random.choice([1,2,2,2,2,2,3,3], size = 20)
+    data['-'][20,80] = np.random.choice([1,1,1,1,2,2,2,3], size = 60)
+    data['-'][80,100] = np.random.choice([1,1,1,1,1,1,2,2], size = 20)
+    
+    given = pd.DataFrame({'given': np.random.choice(person_n, size = 100, p = person_p)})
+    given = pd.merge(data, given, left_index=True, right_index=True, how='outer')
+    given = given[['-','given']].groupby('given').count()
+    
+    data['+'] = np.random.choice(person_n, size = 100, p = person_p)
+    
+    given = pd.Series(np.random.choice(person_n, size = 100, p = person_p))
+    given = pd.DataFrame({'+':given.value_counts()})
+
+    data = data.join(given)
+    data = data.fillna(0)
+    
+    return data[round_i] + data['+']
 # %% 设置输出函数-没有按财富值排序
 
 
