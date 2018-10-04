@@ -17,11 +17,11 @@ person_n = [x for x in range(1, 101)]
 print('导入模块完成')
 
 # %%设置输出的地址
-exportQ1NoSort = "%s/输出/问题1:不允许借贷—不排序" % pathPj13
-exportQ1Sort = "%s/输出/问题1:不允许借贷—排序" % pathPj13
-exportQ2Sort = "%s/输出/问题2:允许借贷—排序" % pathPj13
-exportQ2SortNeg = "%s/输出/问题2:允许借贷—排序—负债" % pathPj13
-exportQ3SortEff = "%s/输出/问题3:不允许借贷—排序—努力" % pathPj13
+exportQ1NoSort = "%s/输出/问题1_不允许借贷—不排序" % pathPj13
+exportQ1Sort = "%s/输出/问题1_不允许借贷—排序" % pathPj13
+exportQ2Sort = "%s/输出/问题2_允许借贷—排序" % pathPj13
+exportQ2SortNeg = "%s/输出/问题2_允许借贷—排序—负债" % pathPj13
+exportQ3SortEff = "%s/输出/问题3_不允许借贷—排序—努力" % pathPj13
 print('设置系统量完成')
 
 # %% 问题1
