@@ -4,9 +4,14 @@ import matplotlib.pyplot as plt
 print('导入模块完成,PJ13函数')
 
 person_n = [x for x in range(1, 101)]
-person_p = [0.899/90 for i in range(100)]
-for i in [1,11,21,31,41,51,61,71,81,91]:
-    person_p[i-1] = 0.0101
+# 第三问需要的常数
+person_p = [0.899 / 90 for i in range(100)]
+for i in [1, 11, 21, 31, 41, 51, 61, 71, 81, 91]:
+    person_p[i - 1] = 0.0101
+# 第四问需要的常数
+person_g = person_n.copy()
+del person_g[15:20]
+
 # %% 设置过程函数（当资金为0时不支出）
 
 
@@ -67,7 +72,7 @@ def processQ3(dataf, round_i):
     data = dataf.copy()
     data[round_i] = data[round_i - 1] - 1
 
-    given = pd.DataFrame({'given': np.random.choice(person_n, size = 100, p = person_p)})
+    given = pd.DataFrame({'given': np.random.choice(person_n, size=100, p=person_p)})
     given['+'] = 1
     given = given.groupby('given').count()
 
@@ -84,39 +89,52 @@ def processQ4(dataf, round_i):
     data = dataf.copy()
     data[round_i] = data[round_i - 1] - 1
 
-    given = pd.Series(np.random.choice(person_n, size = 100, p = person_p))
-    given = pd.DataFrame({'+':given.value_counts()})
+    given = pd.Series(np.random.choice(person_n, size=100, p=person_p))
+    given = pd.DataFrame({'+': given.value_counts()})
 
     data = data.join(given)
     data = data.fillna(0)
-    
+
     return data[round_i] + data['+']
 
 # %% 设置过程函数 自建模型
 
 
-def processQ5(dataf, round_i):
+def processQ5(dataf, round_i, person_p4):
     data = pd.DataFrame(dataf[round_i - 1])
-    data.sort_values(by = (round_i - 1)).reset_index()
-    
+    data = data.sort_values(by=(round_i - 1))
+    # 给多少
     data['-'] = 1
-    data['-'][0:20] = np.random.choice([1,2,2,2,2,2,3,3], size = 20)
-    data['-'][20,80] = np.random.choice([1,1,1,1,2,2,2,3], size = 60)
-    data['-'][80,100] = np.random.choice([1,1,1,1,1,1,2,2], size = 20)
-    
-    given = pd.DataFrame({'given': np.random.choice(person_n, size = 100, p = person_p)})
-    given = pd.merge(data, given, left_index=True, right_index=True, how='outer')
-    given = given[['-','given']].groupby('given').count()
-    
-    data['+'] = np.random.choice(person_n, size = 100, p = person_p)
-    
-    given = pd.Series(np.random.choice(person_n, size = 100, p = person_p))
-    given = pd.DataFrame({'+':given.value_counts()})
+    data['-'][data[round_i - 1] > 230] = np.random.choice([1, 2, 2, 2, 2, 3, 3, 3],
+                                                          size=len(data[data[round_i - 1] > 230]))
 
+    data['-'][(data[round_i - 1] > 40) & (data[round_i - 1] <= 230)] = np.random.choice([1, 1, 1, 2, 2, 2, 2, 3],
+                                                                                        size=len(data[(data[round_i - 1] > 40) & (data[round_i - 1] <= 230)]))
+
+    data['-'][data[round_i - 1] <= 40] = np.random.choice([1, 1, 1, 1, 1, 1, 2, 2],
+                                                          size=len(data[data[round_i - 1] <= 40]))
+
+    # 给谁
+    given = pd.DataFrame({'given': np.random.choice(person_g, size=100, p=person_p4)},
+                         index=person_n)
+    given = pd.merge(data, given, left_index=True, right_index=True, how='outer')
+    given = given[['-', 'given']].groupby('given').sum()
+    given.columns = ['+']
+
+    # 计算下一回合数
     data = data.join(given)
-    data = data.fillna(0)
-    
-    return data[round_i] + data['+']
+    data = data.fillna(0).sort_values(by='id')
+
+    # 收税
+    reQ5sum = sum(data['+'][5:] * 0.051)
+    data['+'][5:] = data['+'][5:] * 0.949000000000001
+
+    # 国家救济与公务员不收税
+    data['+'][15:20] = 1.63
+    data['+'][data[round_i - 1] <= 2] = data['+'][data[round_i - 1] <= 2] + 1
+    reQ5sum = reQ5sum - len(data['+'][data[round_i - 1] <= 2])
+
+    return (data[round_i - 1] - data['-'] + data['+']), reQ5sum
 # %% 设置输出函数-没有按财富值排序
 
 
@@ -153,13 +171,13 @@ def Pic2(data, start, end, length, theMax, theMin):
         plt.grid(color='gray', linestyle='--', linewidth=0.5)
         plt.savefig('graph2_round_%d.png' % n, dpi=200)
 # 创建绘图函数2
-        
+
 # %% 设置输出函数-按财富值排序,有颜色判断,数据不能转置
 
 
 def Pic3(data, start, end, length, theMax, theMin):
     for n in list(range(start, end, length)):
-        datai = data[[n,'color']].sort_values(by = (n)).reset_index()[[n,'color']]
+        datai = data[[n, 'color']].sort_values(by=(n)).reset_index()[[n, 'color']]
         plt.figure(figsize=(10, 6))
         plt.bar(datai.index, datai[n],
                 color=datai['color'], alpha=0.8, width=0.9,

@@ -77,7 +77,43 @@ plt.grid(color='gray', linestyle='--', linewidth=0.5)
 # plt.savefig('graph1_round_%d.png' % n, dpi=200)
 
 # %%
+dataf, round_i, person_p4 = fortuneQ4, 239, person_p41
 
+data = pd.DataFrame(dataf[round_i - 1])
+data = data.sort_values(by = (round_i - 1))
+# 给多少
+data['-'] = 1
+data['-'][data[round_i - 1] > 230] = np.random.choice([1,2,2,2,2,2,3,3], 
+    size = len(data[data[round_i - 1] > 230]))
+
+data['-'][(data[round_i - 1] > 40) & (data[round_i - 1] <= 230)] = np.random.choice([1,1,1,1,2,2,2,3], 
+    size = len(data[ (data[round_i - 1] > 40) & (data[round_i - 1] <= 230) ]))
+
+data['-'][data[round_i - 1] <= 40] = np.random.choice([1,1,1,1,1,1,2,2], 
+    size = len(data[data[round_i - 1] <= 40]))
+
+# 给谁
+given = pd.DataFrame({'given': np.random.choice(person_g, size = 100, p = person_p4)},
+                      index=person_n)
+given = pd.merge(data, given, left_index=True, right_index=True, how='outer')
+given = given[['-','given']].groupby('given').sum()
+given.columns = ['+']
+
+# 计算下一回合数
+data = data.join(given)
+data = data.fillna(0).sort_values(by = 'id')
+
+reQ5sum = sum(data['+'][5:]*0.2)
+data['+'][5:] = data['+'][5:]*0.8
+
+# 国家救济与公务员不收税
+data['+'][15:20] = 1
+data['+'][data[round_i - 1] <= 2] = data['+'][data[round_i - 1] <= 2] + 1
+reQ5sum = reQ5sum - len(data['+'][data[round_i - 1] <= 2])
+
+data[round_i] = data[round_i-1] - data['-'] + data['+']
+print(data[round_i].sum()+reQ5sum)
+# return (data[round_i-1] - data['-'] + data['+']), reQ5sum
 
 
 
