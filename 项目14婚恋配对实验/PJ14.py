@@ -14,7 +14,7 @@ from bokeh.plotting import figure,show,output_file
 mpl.rcParams['font.sans-serif'] = ['SimHei']  # 指定默认字体
 mpl.rcParams['axes.unicode_minus'] = False    # 解决保存图像是负号'-'显示为方块的问题
 
-# os.chdir('D:/user/Documents/00code/spyder_exam/项目14婚恋配对实验/输出')
+os.chdir('D:/user/Documents/00code/spyder_exam/项目14婚恋配对实验/输出')
 # os.chdir('/home/qweerer/0code/spyder_exam/项目14婚恋配对实验')
 
 # pathPj14 = os.path.abspath('.')
@@ -281,6 +281,7 @@ def goLove(dataM, dataF, n):
     i = len(roundSucceed)
     lov = len(round_s0)
     roundSucceed = pd.concat([roundSucceed, round_s0])
+    roundSucceed = roundSucceed.drop_duplicates(subset=['f'], keep='last')
 
     return i, lov, roundSucceed
 
@@ -342,7 +343,7 @@ print('本次实验总共进行了%i轮，配对成功%i对\n------------' % (n,
 print('实验总共耗时%.2f秒' % (endtime - starttime))
 print('一见钟情总对数为', q)
 
-del n, m, i, l, q, starttime, endtime
+del n, m, i, l, q, starttime, endtime, success_roundn
 # %%
 # 通过数据分析，回答几个问题：
 #   ** 百分之多少的样本数据成功匹配到了对象？
@@ -481,6 +482,7 @@ picDataQ3['x'] = picDataQ3['m'].str[1:]
 picDataQ3['y'] = picDataQ3['f'].str[1:]
 # 生成颜色
 color = ['#fff5f0',
+         '#fff5f0',
          '#fee0d2',
          '#fcbba1',
          '#fc9272',
@@ -488,11 +490,15 @@ color = ['#fff5f0',
          '#ef3b2c',
          '#cb181d',
          '#a50f15',
-         '#67000d',]
+         '#67000d',
+         '#67000d',
+         '#67000d',
+         '#67000d']
 
-
-picDataQ3['color'] = 'blue'
-picDataQ3['color'][picDataQ3['s0'] == 1] = 'red'
+for rn in picDataQ3['round_n'].value_counts().index:
+    picDataQ3['color'][picDataQ3['round_n'] == rn] = color[rn-1] 
+#picDataQ3['color'] = 'blue'
+#picDataQ3['color'][picDataQ3['s0'] == 1] = 'red'
 
 picDataQ3['leg'] = '非一见钟情'
 picDataQ3['leg'][picDataQ3['s0'] == 1] = '一见钟情'
@@ -500,7 +506,7 @@ picDataQ3['leg'][picDataQ3['s0'] == 1] = '一见钟情'
 picDataQ3 = picDataQ3.reset_index()
 del picDataQ3['index']
 # %% 绘图
-# output_file("PJ14Q3_2.html")
+output_file("PJ14Q3_2.html")
 
 p = figure(plot_width=500, plot_height=500,title="配对实验过程模拟示意" ,tools= 'reset,wheel_zoom,pan')   # 构建绘图空间
 
@@ -508,13 +514,14 @@ for datai in picDataQ3.index:
     x = picDataQ3.iloc[datai]['x']
     y = picDataQ3.iloc[datai]['y']
     c = picDataQ3.iloc[datai]['color']
-    if c == 'blue':
-        leg = '非一见钟情'
-    else:
-        leg = '一见钟情'
-    p.line([x,0],[y,0],
+    leg = picDataQ3.iloc[datai]['leg']
+
+    p.line([x,0],[x,y],
            line_width=1, line_alpha = 0.8, line_color = c,line_dash = [10,4],
-           legend= 'round %i' % datai[3])
+           legend= leg)
+    p.line([0,y],[x,y],
+           line_width=1, line_alpha = 0.8, line_color = c,line_dash = [10,4],
+           legend= leg)
 
     
 #  show(p)
