@@ -2,15 +2,19 @@
 import os
 import time
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+import matplotlib.pyplot as plt
 from pylab import mpl
+from bokeh.plotting import figure,show,output_file
+# 导入图表绘制、图标展示模块
+# output_file → 非notebook中创建绘图空间
 
 mpl.rcParams['font.sans-serif'] = ['SimHei']  # 指定默认字体
-mpl.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
-# 引用自定义函数
-os.chdir('D:/user/Documents/00code/spyder_exam/项目14婚恋配对实验/输出')
+mpl.rcParams['axes.unicode_minus'] = False    # 解决保存图像是负号'-'显示为方块的问题
+
+# os.chdir('D:/user/Documents/00code/spyder_exam/项目14婚恋配对实验/输出')
 # os.chdir('/home/qweerer/0code/spyder_exam/项目14婚恋配对实验')
 
 # pathPj14 = os.path.abspath('.')
@@ -77,7 +81,7 @@ round1_match['app_dis'] = np.abs(round1_match['appearances0'] - round1_match['ap
 # 合并数据
 # %%
 # 策略0: 一见钟情,男女两者互相喜欢
-round1_s0 = round1_match[round1_match['MId'] == round1_match['choiceM']]
+round1_s0 = round1_match[round1_match['MId'] == round1_match['choiceF']]
 round1_s0 = pd.DataFrame({'m': round1_s0['MId'],
                           'f': round1_s0['choiceM'],
                           'round_n': 1,
@@ -102,7 +106,7 @@ for i, j in round1_s1[round1_s1['mok'] == 1].groupby('strategyF'):
         j['fok'][j['fortune1'] - j['fortune0'] >= 10] = 1
         round1_sc = pd.concat([round1_sc, j])
     elif i == 3:
-        j['fok'][(j['cha_dis'] < 10) &     # 内涵得分差在10分以内
+        j['fok'][(j['cha_dis'] < 10) &    # 内涵得分差在10分以内
                  (j['for_dis'] < 5) &     # 财富得分差在5分以内
                  (j['app_dis'] < 5)] = 1  # 外貌得分差在5分以内
         round1_sc = pd.concat([round1_sc, j])
@@ -120,13 +124,13 @@ round1_s2['mok'][(round1_s2['appearances0'] - round1_s2['appearances1']) >= 10] 
 round1_sc = pd.DataFrame(columns=round1_match.columns)
 for i, j in round1_s2[round1_s2['mok'] == 1].groupby('strategyF'):
     if i == 1:
-        j['fok'][j['score_dis'] <= 20] = 1                    # 女性要求:门当户对，要求双方三项指标加和的总分接近，差值不超过20分
+        j['fok'][j['score_dis'] <= 20] = 1                 # 女性要求:门当户对，要求双方三项指标加和的总分接近，差值不超过20分
         round1_sc = pd.concat([round1_sc, j])
     elif i == 2:
         j['fok'][j['fortune1'] - j['fortune0'] >= 10] = 1  # 女性要求:男性财富比女性高出至少10分
         round1_sc = pd.concat([round1_sc, j])
     elif i == 3:
-        j['fok'][(j['cha_dis'] < 10) &     # 内涵得分差在10分以内
+        j['fok'][(j['cha_dis'] < 10) &    # 内涵得分差在10分以内
                  (j['for_dis'] < 5) &     # 财富得分差在5分以内
                  (j['app_dis'] < 5)] = 1  # 外貌得分差在5分以内
         round1_sc = pd.concat([round1_sc, j])
@@ -139,20 +143,20 @@ round1_s3 = round1_match[round1_match['strategyM'] == 3]
 round1_s3['mok'] = 0
 round1_s3['fok'] = 0
 # 判断男性的择偶是否符合
-round1_s3['mok'][(round1_s3['cha_dis'] < 10) &     # 男性要求:内涵得分差在10分以内
+round1_s3['mok'][(round1_s3['cha_dis'] < 10) &    # 男性要求:内涵得分差在10分以内
                  (round1_s3['for_dis'] < 5) &     # 男性要求:财富得分差在5分以内
                  (round1_s3['app_dis'] < 5)] = 1  # 男性要求:女性颜值比男性高出至少10分
 
 round1_sc = pd.DataFrame(columns=round1_match.columns)
 for i, j in round1_s3[round1_s3['mok'] == 1].groupby('strategyF'):
     if i == 1:
-        j['fok'][j['score_dis'] <= 20] = 1                    # 女性要求:门当户对，要求双方三项指标加和的总分接近，差值不超过20分
+        j['fok'][j['score_dis'] <= 20] = 1                   # 女性要求:门当户对，要求双方三项指标加和的总分接近，差值不超过20分
         round1_sc = pd.concat([round1_sc, j])
     elif i == 2:
         j['fok'][j['fortune1'] - j['fortune0'] >= 10] = 1    # 女性要求:男性财富比女性高出至少10分
         round1_sc = pd.concat([round1_sc, j])
     elif i == 3:
-        j['fok'] = 1                                          # 女性要求:与男性要求相同
+        j['fok'] = 1                                         # 女性要求:与男性要求相同
         round1_sc = pd.concat([round1_sc, j])
 round1_sc['OK'] = round1_sc['mok'] + round1_sc['fok']
 round1_s3 = round1_sc[round1_sc['OK'] == 2]
@@ -184,12 +188,13 @@ def goLove(dataM, dataF, n):
     round_match['app_dis'] = np.abs(round_match['appearances0'] - round_match['appearances1'])       # 求出外貌得分差值
 
     # 策略0: 一见钟情,男女两者互相喜欢
-    round_s0 = round_match[round_match['MId'] == round_match['choiceM']]
+    round_s0 = round_match[round_match['MId'] == round_match['choiceF']]
     round_s0 = pd.DataFrame({'m': round_s0['MId'],
                              'f': round_s0['choiceM'],
                              'round_n': n,
                              'strategyM': round_s0['strategyM'],
-                             'strategyF': round_s0['strategyF']})
+                             'strategyF': round_s0['strategyF'],
+                             's0':1})
     # 因为一见钟情可能是任何形式的择偶,所以先删除
     round_match = round_match.drop(round_s0.index.tolist())
 
@@ -200,7 +205,7 @@ def goLove(dataM, dataF, n):
     # 判断男性的择偶是否符合
     round_s1['mok'][round_s1['score_dis'] <= 20] = 1
 
-    round_sc = pd.DataFrame(columns=round_match.columns)
+    round_sc = pd.DataFrame(columns=round_s1.columns)
     for i, j in round_s1[round_s1['mok'] == 1].groupby('strategyF'):
         if i == 1:
             j['fok'] = 1
@@ -209,7 +214,7 @@ def goLove(dataM, dataF, n):
             j['fok'][j['fortune1'] - j['fortune0'] >= 10] = 1
             round_sc = pd.concat([round_sc, j])
         elif i == 3:
-            j['fok'][(j['cha_dis'] < 10) &     # 内涵得分差在10分以内
+            j['fok'][(j['cha_dis'] < 10) &    # 内涵得分差在10分以内
                      (j['for_dis'] < 5) &     # 财富得分差在5分以内
                      (j['app_dis'] < 5)] = 1  # 外貌得分差在5分以内
             round_sc = pd.concat([round_sc, j])
@@ -223,16 +228,16 @@ def goLove(dataM, dataF, n):
     # 判断男性的择偶是否符合
     round_s2['mok'][(round_s2['appearances0'] - round_s2['appearances1']) >= 10] = 1  # 男性要求:女性颜值比男性高出至少10分
 
-    round_sc = pd.DataFrame(columns=round_match.columns)
+    round_sc = pd.DataFrame(columns=round_s1.columns)
     for i, j in round_s2[round_s2['mok'] == 1].groupby('strategyF'):
         if i == 1:
-            j['fok'][j['score_dis'] <= 20] = 1                    # 女性要求:门当户对，要求双方三项指标加和的总分接近，差值不超过20分
+            j['fok'][j['score_dis'] <= 20] = 1                 # 女性要求:门当户对，要求双方三项指标加和的总分接近，差值不超过20分
             round_sc = pd.concat([round_sc, j])
         elif i == 2:
             j['fok'][j['fortune1'] - j['fortune0'] >= 10] = 1  # 女性要求:男性财富比女性高出至少10分
             round_sc = pd.concat([round_sc, j])
         elif i == 3:
-            j['fok'][(j['cha_dis'] < 10) &     # 内涵得分差在10分以内
+            j['fok'][(j['cha_dis'] < 10) &    # 内涵得分差在10分以内
                      (j['for_dis'] < 5) &     # 财富得分差在5分以内
                      (j['app_dis'] < 5)] = 1  # 外貌得分差在5分以内
             round_sc = pd.concat([round_sc, j])
@@ -244,20 +249,20 @@ def goLove(dataM, dataF, n):
     round_s3['mok'] = 0
     round_s3['fok'] = 0
     # 判断男性的择偶是否符合
-    round_s3['mok'][(round_s3['cha_dis'] < 10) &     # 男性要求:内涵得分差在10分以内
+    round_s3['mok'][(round_s3['cha_dis'] < 10) &    # 男性要求:内涵得分差在10分以内
                     (round_s3['for_dis'] < 5) &     # 男性要求:财富得分差在5分以内
                     (round_s3['app_dis'] < 5)] = 1  # 男性要求:女性颜值比男性高出至少10分
 
-    round_sc = pd.DataFrame(columns=round_match.columns)
+    round_sc = pd.DataFrame(columns=round_s1.columns)
     for i, j in round_s3[round_s3['mok'] == 1].groupby('strategyF'):
         if i == 1:
-            j['fok'][j['score_dis'] <= 20] = 1                    # 女性要求:门当户对，要求双方三项指标加和的总分接近，差值不超过20分
+            j['fok'][j['score_dis'] <= 20] = 1                   # 女性要求:门当户对，要求双方三项指标加和的总分接近，差值不超过20分
             round_sc = pd.concat([round_sc, j])
         elif i == 2:
             j['fok'][j['fortune1'] - j['fortune0'] >= 10] = 1    # 女性要求:男性财富比女性高出至少10分
             round_sc = pd.concat([round_sc, j])
         elif i == 3:
-            j['fok'] = 1                                          # 女性要求:与男性要求相同
+            j['fok'] = 1                                         # 女性要求:与男性要求相同
             round_sc = pd.concat([round_sc, j])
     round_sc['OK'] = round_sc['mok'] + round_sc['fok']
     round_s3 = round_sc[round_sc['OK'] == 2]
@@ -271,12 +276,13 @@ def goLove(dataM, dataF, n):
                                  'f': roundSucceed['choiceM'],
                                  'round_n': n,
                                  'strategyM': roundSucceed['strategyM'],
-                                 'strategyF': roundSucceed['strategyF']})
+                                 'strategyF': roundSucceed['strategyF'],
+                                 's0':0})
     i = len(roundSucceed)
-    l = len(round_s0)
+    lov = len(round_s0)
     roundSucceed = pd.concat([roundSucceed, round_s0])
 
-    return i, l, roundSucceed
+    return i, lov, roundSucceed
 
 
 print('函数导入完成')
@@ -301,7 +307,7 @@ dataF['strategyF'] = np.random.choice([1, 2, 3], 10000)
 
 
 # %% 问题2.2 开始循环
-matchSuccess = pd.DataFrame(columns=['m', 'f', 'round_n', 'strategyM', 'strategyF'])
+matchSuccess = pd.DataFrame(columns=['m', 'f', 'round_n', 'strategyM', 'strategyF','s0'])
 test_m1 = dataM.copy()
 test_f1 = dataF.copy()
 # 复制数据
@@ -400,7 +406,7 @@ plt.ylim(0, 150)
 
 # result_df
 
-# %% 3、以100男+100女的样本数据，绘制匹配折线图
+# %% 问题3、以100男+100女的样本数据，绘制匹配折线图
 
 # 生成样本数据，模拟匹配实验
 
@@ -429,7 +435,7 @@ dataF['strategyF'] = np.random.choice([1,2,3],100)
 dataQ3M = dataM.copy()
 dataQ3F = dataF.copy()
 
-matchSuccess = pd.DataFrame(columns = ['m','f','round_n','strategyM','strategyF'])
+matchSuccess = pd.DataFrame(columns = ['m','f','round_n','strategyM','strategyF','s0'])
 # 复制数据
 
 m = 0
@@ -443,7 +449,7 @@ while m<2: #出现连续2次没人配对成功的情况下终止循环
     i,l,success_roundn = goLove(dataQ3M, dataQ3F,n)    
     matchSuccess = pd.concat([matchSuccess,success_roundn])
     dataQ3M = dataQ3M.drop(success_roundn['m'].tolist())
-    dataQ3F = dataQ3M.drop(success_roundn['f'].tolist())
+    dataQ3F = dataQ3F.drop(success_roundn['f'].tolist())
     print('成功进行第%i轮实验，本轮实验成功匹配%i对，总共成功匹配%i对，还剩下%i位男性和%i位女性,一见钟情%i对' % 
           (n,len(success_roundn),len(matchSuccess),len(dataQ3M),len(dataQ3F),l))
     n = n + 1
@@ -469,17 +475,65 @@ del n,m,i,l,q,starttime,endtime
 
 # %%
 
-# 生成绘制数据表格
+picDataQ3 = matchSuccess.copy()
+# 生成坐标
+picDataQ3['x'] = picDataQ3['m'].str[1:]
+picDataQ3['y'] = picDataQ3['f'].str[1:]
+# 生成颜色
+color = ['#fff5f0',
+         '#fee0d2',
+         '#fcbba1',
+         '#fc9272',
+         '#fb6a4a',
+         '#ef3b2c',
+         '#cb181d',
+         '#a50f15',
+         '#67000d',]
 
-from bokeh.palettes import brewer
-# 导入调色模块
 
-# 设置调色盘
-graphdata1 = match_success2.copy()
-graphdata1 = pd.merge(graphdata1,sample_m2,left_on = 'm',right_index = True)
-graphdata1 = pd.merge(graphdata1,sample_f2,left_on = 'f',right_index = True)
-# 合并数据，得到成功配对的男女各项分值
+picDataQ3['color'] = 'blue'
+picDataQ3['color'][picDataQ3['s0'] == 1] = 'red'
 
+picDataQ3['leg'] = '非一见钟情'
+picDataQ3['leg'][picDataQ3['s0'] == 1] = '一见钟情'
+
+picDataQ3 = picDataQ3.reset_index()
+del picDataQ3['index']
+# %% 绘图
+# output_file("PJ14Q3_2.html")
+
+p = figure(plot_width=500, plot_height=500,title="配对实验过程模拟示意" ,tools= 'reset,wheel_zoom,pan')   # 构建绘图空间
+
+for datai in picDataQ3.index:
+    x = picDataQ3.iloc[datai]['x']
+    y = picDataQ3.iloc[datai]['y']
+    c = picDataQ3.iloc[datai]['color']
+    if c == 'blue':
+        leg = '非一见钟情'
+    else:
+        leg = '一见钟情'
+    p.line([x,0],[y,0],
+           line_width=1, line_alpha = 0.8, line_color = c,line_dash = [10,4],
+           legend= 'round %i' % datai[3])
+
+    
+#  show(p)
+    # %%
+    p.line(datai[-3],datai[-2],line_width=1, line_alpha = 0.8, line_color = datai[-1],line_dash = [10,4],legend= 'round %i' % datai[3])  
+    # 绘制折线
+    p.circle(datai[-3],datai[-2],size = 3,color = datai[-1],legend= 'round %i' % datai[3])
+    # 绘制点
+
+p.ygrid.grid_line_dash = [6, 4]
+p.xgrid.grid_line_dash = [6, 4]
+p.legend.location = "top_right"
+p.legend.click_policy="hide"
+# 设置其他参数
+
+show(p)
+
+
+# %%
 graphdata1['x'] = '0,' + graphdata1['f'].str[1:] + ',' + graphdata1['f'].str[1:]
 graphdata1['x'] = graphdata1['x'].str.split(',')
 graphdata1['y'] = graphdata1['m'].str[1:] + ',' + graphdata1['m'].str[1:] + ',0'
@@ -517,5 +571,3 @@ p.legend.click_policy="hide"
 # 设置其他参数
 
 show(p)
-
-
