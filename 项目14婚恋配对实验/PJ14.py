@@ -9,13 +9,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pylab import mpl
 from bokeh.plotting import figure, show, output_file
+from bokeh.models import ColumnDataSource, HoverTool
 # 导入图表绘制、图标展示模块
 # output_file → 非notebook中创建绘图空间
 
 mpl.rcParams['font.sans-serif'] = ['SimHei']  # 指定默认字体
 mpl.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
 
-# os.chdir('D:/user/Documents/00code/spyder_exam/项目14婚恋配对实验/输出')
+os.chdir('D:/user/Documents/00code/spyder_exam/项目14婚恋配对实验/输出')
 # os.chdir('/home/qweerer/0code/spyder_exam/项目14婚恋配对实验')
 
 # pathPj14 = os.path.abspath('.')
@@ -38,17 +39,17 @@ print('导入模块完成')
 ② 指数分布：np.random.exponential(scale=15, size=n) + 45
 '''
 # %%
-dataM = pd.DataFrame({'fortune1': np.random.exponential(scale=15, size=100) + 45, 
-                      'character1': np.random.normal(loc=60, scale=15, size=100), 
-                      'appearances1': np.random.normal(loc=60, scale=15, size=100)}, 
-                      index=['m%i' % i for i in range(1, 101)])
+dataM = pd.DataFrame({'fortune1': np.random.exponential(scale=15, size=100) + 45,
+                      'character1': np.random.normal(loc=60, scale=15, size=100),
+                      'appearances1': np.random.normal(loc=60, scale=15, size=100)},
+                     index=['m%i' % i for i in range(1, 101)])
 dataM['score1'] = (dataM['fortune1'] + dataM['character1'] + dataM['appearances1'])
 dataM.index.name = 'MId'
 
-dataF = pd.DataFrame({'fortune0': np.random.exponential(scale=15, size=100) + 45, 
-                      'character0': np.random.normal(loc=60, scale=15, size=100), 
-                      'appearances0': np.random.normal(loc=60, scale=15, size=100)}, 
-                      index=['f%i' % i for i in range(1, 101)])
+dataF = pd.DataFrame({'fortune0': np.random.exponential(scale=15, size=100) + 45,
+                      'character0': np.random.normal(loc=60, scale=15, size=100),
+                      'appearances0': np.random.normal(loc=60, scale=15, size=100)},
+                     index=['f%i' % i for i in range(1, 101)])
 dataF['score0'] = (dataF['fortune0'] + dataF['character0'] + dataF['appearances0'])
 dataF.index.name = 'FId'
 
@@ -87,7 +88,7 @@ matchSuccess = pd.DataFrame(columns=['m', 'f', 'round_n', 'strategyM', 'strategy
    ** 择偶策略2：男才女貌，男性要求女性的外貌分比自己高出至少10分，女性要求男性的财富分比自己高出至少10分；
    ** 择偶策略3：志趣相投、适度引领，要求对方的内涵得分在比自己低10分~高10分的区间内，且外貌和财富两项与自己的得分差值都在5分以内
    ** 每一轮实验中，我们将三种策略随机平分给所有样本，这里则是三种策略分别33人
-   ** 这里不同策略匹配结果可能重合，所以为了简化模型 
+   ** 这里不同策略匹配结果可能重合，所以为了简化模型
    → 先进行策略1模拟，
    → 模拟完成后去掉该轮成功匹配的女性数据,再进行策略2模拟，
    → 模拟完成后去掉该轮成功匹配的女性数据,再进行策略3模拟
@@ -127,10 +128,10 @@ round1_match['app_dis'] = np.abs(round1_match['appearances0'] - round1_match['ap
 # %%
 # 策略0: 一见钟情,男女两者互相喜欢
 round1_s0 = round1_match[round1_match['MId'] == round1_match['choiceF']]
-round1_s0 = pd.DataFrame({'m': round1_s0['MId'], 
-                          'f': round1_s0['choiceM'], 
-                          'round_n': 1, 
-                          'strategyM': round1_s0['strategyM'], 
+round1_s0 = pd.DataFrame({'m': round1_s0['MId'],
+                          'f': round1_s0['choiceM'],
+                          'round_n': 1,
+                          'strategyM': round1_s0['strategyM'],
                           'strategyF': round1_s0['strategyF']})
 # 因为一见钟情可能是任何形式的择偶,所以先删除
 round1_match = round1_match.drop(round1_s0.index.tolist())
@@ -151,8 +152,8 @@ for i, j in round1_s1[round1_s1['mok'] == 1].groupby('strategyF'):
         j['fok'][j['fortune1'] - j['fortune0'] >= 10] = 1
         round1_sc = pd.concat([round1_sc, j])
     elif i == 3:
-        j['fok'][(j['cha_dis'] < 10) &  # 内涵得分差在10分以内
-                 (j['for_dis'] < 5) &  # 财富得分差在5分以内
+        j['fok'][(j['cha_dis'] < 10) &    # 内涵得分差在10分以内
+                 (j['for_dis'] < 5) &     # 财富得分差在5分以内
                  (j['app_dis'] < 5)] = 1  # 外貌得分差在5分以内
         round1_sc = pd.concat([round1_sc, j])
 round1_sc['OK'] = round1_sc['mok'] + round1_sc['fok']
@@ -209,15 +210,17 @@ round1Succeed = pd.concat([round1_s1, round1_s2, round1_s3])
 round1Succeed = round1Succeed.sort_values(by='score1', ascending=False)
 round1Succeed = round1Succeed.drop_duplicates(subset=['choiceM'], keep='first')
 
-round1Succeed = pd.DataFrame({'m': round1Succeed['MId'], 
-                              'f': round1Succeed['choiceM'], 
-                              'round_n': 1, 
-                              'strategyM': round1Succeed['strategyM'], 
+round1Succeed = pd.DataFrame({'m': round1Succeed['MId'],
+                              'f': round1Succeed['choiceM'],
+                              'round_n': 1,
+                              'strategyM': round1Succeed['strategyM'],
                               'strategyF': round1Succeed['strategyF']})
 
 #################################
 # %% 问题2.2
 # 构建函数
+
+
 def goLove(dataM, dataF, n):
 
     dataM['choiceM'] = np.random.choice(dataF.index, len(dataM))
@@ -332,17 +335,17 @@ def goLove(dataM, dataF, n):
 print('函数导入完成')
 
 # %% 问题2.2 创建数据
-dataM = pd.DataFrame({'fortune1': np.random.exponential(scale=15, size=10000) + 45, 
-                      'character1': np.random.normal(loc=60, scale=15, size=10000), 
-                      'appearances1': np.random.normal(loc=60, scale=15, size=10000)}, 
-                      index=['m%i' % i for i in range(1, 10001)])
+dataM = pd.DataFrame({'fortune1': np.random.exponential(scale=15, size=10000) + 45,
+                      'character1': np.random.normal(loc=60, scale=15, size=10000),
+                      'appearances1': np.random.normal(loc=60, scale=15, size=10000)},
+                     index=['m%i' % i for i in range(1, 10001)])
 dataM['score1'] = (dataM['fortune1'] + dataM['character1'] + dataM['appearances1'])
 dataM.index.name = 'MId'
 
-dataF = pd.DataFrame({'fortune0': np.random.exponential(scale=15, size=10000) + 45, 
-                      'character0': np.random.normal(loc=60, scale=15, size=10000), 
-                      'appearances0': np.random.normal(loc=60, scale=15, size=10000)}, 
-                      index=['f%i' % i for i in range(1, 10001)])
+dataF = pd.DataFrame({'fortune0': np.random.exponential(scale=15, size=10000) + 45,
+                      'character0': np.random.normal(loc=60, scale=15, size=10000),
+                      'appearances0': np.random.normal(loc=60, scale=15, size=10000)},
+                     index=['f%i' % i for i in range(1, 10001)])
 dataF['score0'] = (dataF['fortune0'] + dataF['character0'] + dataF['appearances0'])
 dataF.index.name = 'FId'
 
@@ -367,7 +370,7 @@ while m < 2:  # 出现连续2次没人配对成功的情况下终止循环
     matchSuccess = pd.concat([matchSuccess, success_roundn])
     test_m1 = test_m1.drop(success_roundn['m'].tolist())
     test_f1 = test_f1.drop(success_roundn['f'].tolist())
-    print('成功进行第%i轮实验，本轮实验成功匹配%i对，总共成功匹配%i对，还剩下%i位男性和%i位女性,一见钟情%i对' 
+    print('成功进行第%i轮实验，本轮实验成功匹配%i对，总共成功匹配%i对，还剩下%i位男性和%i位女性,一见钟情%i对'
           % (n, len(success_roundn), len(matchSuccess), len(test_m1), len(test_f1), l))
     n = n + 1
     q = q + l
@@ -396,11 +399,11 @@ del n, m, i, l, q, starttime, endtime, success_roundn
 print('%.2f%%的样本数据成功匹配到了对象\n---------' % (len(matchSuccess) / 10000 * 100))
 
 # ② 采取不同择偶策略的匹配成功率分别是多少？
-print('择偶策略1的匹配成功率为%.2f%%' 
+print('择偶策略1的匹配成功率为%.2f%%'
       % (len(matchSuccess[matchSuccess['strategyM'] == 1]) / len(dataM[dataM['strategyM'] == 1]) * 100))
-print('择偶策略2的匹配成功率为%.2f%%' 
+print('择偶策略2的匹配成功率为%.2f%%'
       % (len(matchSuccess[matchSuccess['strategyM'] == 2]) / len(dataM[dataM['strategyM'] == 2]) * 100))
-print('择偶策略3的匹配成功率为%.2f%%' 
+print('择偶策略3的匹配成功率为%.2f%%'
       % (len(matchSuccess[matchSuccess['strategyM'] == 3]) / len(dataM[dataM['strategyM'] == 3]) * 100))
 
 print('\n---------')
@@ -424,11 +427,11 @@ result_df = pd.DataFrame(
     index=['择偶策略1', '择偶策略2', '择偶策略3'])
 # 构建数据dataframe
 
-print('择偶策略1的男性 → 财富均值为%.2f，内涵均值为%.2f，外貌均值为%.2f' 
+print('择偶策略1的男性 → 财富均值为%.2f，内涵均值为%.2f，外貌均值为%.2f'
       % (result_df.loc['择偶策略1']['财富均值'], result_df.loc['择偶策略1']['内涵均值'], result_df.loc['择偶策略1']['外貌均值']))
-print('择偶策略2的男性 → 财富均值为%.2f，内涵均值为%.2f，外貌均值为%.2f' 
+print('择偶策略2的男性 → 财富均值为%.2f，内涵均值为%.2f，外貌均值为%.2f'
       % (result_df.loc['择偶策略2']['财富均值'], result_df.loc['择偶策略2']['内涵均值'], result_df.loc['择偶策略2']['外貌均值']))
-print('择偶策略3的男性 → 财富均值为%.2f，内涵均值为%.2f，外貌均值为%.2f' 
+print('择偶策略3的男性 → 财富均值为%.2f，内涵均值为%.2f，外貌均值为%.2f'
       % (result_df.loc['择偶策略3']['财富均值'], result_df.loc['择偶策略3']['内涵均值'], result_df.loc['择偶策略3']['外貌均值']))
 # %%
 figQ1 = plt.figure(figsize=(10, 6))
@@ -450,7 +453,7 @@ plt.grid(color='grey', linestyle='--', linewidth=1)
 plt.ylim(0, 150)
 # 绘制箱型图
 # %%
-del result_df, match_m1
+del result_df, match_m1, test_f1, test_m1
 dataMQ2 = dataM.copy()
 dataFQ2 = dataF.copy()
 #################################
@@ -470,17 +473,17 @@ dataFQ2 = dataF.copy()
 '''
 # %%生成样本数据，模拟匹配实验
 
-dataM = pd.DataFrame({'fortune1': np.random.exponential(scale=15, size=100) + 45, 
-                      'character1': np.random.normal(loc=60, scale=15, size=100), 
-                      'appearances1': np.random.normal(loc=60, scale=15, size=100)}, 
-                      index=['m%i' % i for i in range(1, 101)])
+dataM = pd.DataFrame({'fortune1': np.random.exponential(scale=15, size=100) + 45,
+                      'character1': np.random.normal(loc=60, scale=15, size=100),
+                      'appearances1': np.random.normal(loc=60, scale=15, size=100)},
+                     index=['m%i' % i for i in range(1, 101)])
 dataM['score1'] = (dataM['fortune1'] + dataM['character1'] + dataM['appearances1'])
 dataM.index.name = 'MId'
 
-dataF = pd.DataFrame({'fortune0': np.random.exponential(scale=15, size=100) + 45, 
-                      'character0': np.random.normal(loc=60, scale=15, size=100), 
-                      'appearances0': np.random.normal(loc=60, scale=15, size=100)}, 
-                      index=['f%i' % i for i in range(1, 101)])
+dataF = pd.DataFrame({'fortune0': np.random.exponential(scale=15, size=100) + 45,
+                      'character0': np.random.normal(loc=60, scale=15, size=100),
+                      'appearances0': np.random.normal(loc=60, scale=15, size=100)},
+                     index=['f%i' % i for i in range(1, 101)])
 dataF['score0'] = (dataF['fortune0'] + dataF['character0'] + dataF['appearances0'])
 dataF.index.name = 'FId'
 
@@ -509,7 +512,7 @@ while m < 2:  # 出现连续2次没人配对成功的情况下终止循环
     matchSuccessQ3 = pd.concat([matchSuccessQ3, success_roundn])
     dataQ3M = dataQ3M.drop(success_roundn['m'].tolist())
     dataQ3F = dataQ3F.drop(success_roundn['f'].tolist())
-    print('成功进行第%i轮实验，本轮实验成功匹配%i对，总共成功匹配%i对，还剩下%i位男性和%i位女性,一见钟情%i对' 
+    print('成功进行第%i轮实验，本轮实验成功匹配%i对，总共成功匹配%i对，还剩下%i位男性和%i位女性,一见钟情%i对'
           % (n, len(success_roundn), len(matchSuccessQ3), len(dataQ3M), len(dataQ3F), l))
     n = n + 1
     q = q + l
@@ -563,7 +566,7 @@ print('ok')
 # %% 绘图
 output_file("PJ14Q3_2.html")
 
-p = figure(plot_width=500, plot_height=500, title="配对实验过程模拟示意", tools='reset,wheel_zoom,pan')  
+p = figure(plot_width=500, plot_height=500, title="配对实验过程模拟示意", tools='reset,wheel_zoom,pan')
 # 构建绘图空间
 
 for datai in picDataQ3.index:
@@ -603,62 +606,62 @@ del c, c2, datai, leg, picDataQ3, x, y
 ① 注意绘图的数据结构
 ② 这里散点图通过xy轴定位数据，然后通过设置颜色的透明度来表示匹配成功率
 ③ alpha字段为每种类型匹配成功率标准化之后的结果，再乘以一个参数
-   → data['alpha'] = (data['chance'] - data['chance'].min())/(data['chance'].max() - data['chance'].min())*8   
+   → data['alpha'] = (data['chance'] - data['chance'].min())/(data['chance'].max() - data['chance'].min())*8
 '''
 
 # %%
 # 数据清洗
 
-picDataQ4 = matchSuccess[matchSuccess['s0']==0]
-picDataQ4 = pd.merge(picDataQ4,dataMQ2,left_on = 'm',right_index = True)
-picDataQ4 = pd.merge(picDataQ4,dataFQ2,left_on = 'f',right_index = True)
+picDataQ4 = matchSuccess[matchSuccess['s0'] == 0]
+picDataQ4 = pd.merge(picDataQ4, dataMQ2, left_on='m', right_index=True)
+picDataQ4 = pd.merge(picDataQ4, dataFQ2, left_on='f', right_index=True)
 # 合并数据，得到成功配对的男女各项分值
 
-picDataQ4 = picDataQ4[['m','appearances1','character1','fortune1','f','appearances0','character0','fortune0']]
+picDataQ4 = picDataQ4[['m', 'appearances1', 'character1', 'fortune1', 'f', 'appearances0', 'character0', 'fortune0']]
 # 筛选字段
-picDataQ4['外貌M'] = pd.cut(picDataQ4['appearances1'],[0,50,70,500],labels = ['颜低','颜中','颜高'])
-picDataQ4['内涵M'] = pd.cut(picDataQ4['character1'],[0,50,70,500],labels = ['品低','品中','品高'])
-picDataQ4['资本M'] = pd.cut(picDataQ4['fortune1'],[0,50,70,500],labels = ['财低','财中','财高'])
+picDataQ4['外貌M'] = pd.cut(picDataQ4['appearances1'], [0, 50, 70, 500], labels=['颜低', '颜中', '颜高'])
+picDataQ4['内涵M'] = pd.cut(picDataQ4['character1'], [0, 50, 70, 500], labels=['品低', '品中', '品高'])
+picDataQ4['资本M'] = pd.cut(picDataQ4['fortune1'], [0, 50, 70, 500], labels=['财低', '财中', '财高'])
 
-picDataQ4['外貌F'] = pd.cut(picDataQ4['appearances0'],[0,50,70,500],labels = ['颜低','颜中','颜高'])
-picDataQ4['内涵F'] = pd.cut(picDataQ4['character0'],[0,50,70,500],labels = ['品低','品中','品高'])
-picDataQ4['资本F'] = pd.cut(picDataQ4['fortune0'],[0,50,70,500],labels = ['财低','财中','财高'])
+picDataQ4['外貌F'] = pd.cut(picDataQ4['appearances0'], [0, 50, 70, 500], labels=['颜低', '颜中', '颜高'])
+picDataQ4['内涵F'] = pd.cut(picDataQ4['character0'], [0, 50, 70, 500], labels=['品低', '品中', '品高'])
+picDataQ4['资本F'] = pd.cut(picDataQ4['fortune0'], [0, 50, 70, 500], labels=['财低', '财中', '财高'])
 
 
 # 指标区间划分
 
 picDataQ4['typeM'] = picDataQ4['外貌M'].astype(np.str) + picDataQ4['内涵M'].astype(np.str) + picDataQ4['资本M'].astype(np.str)
-picDataQ4['typeF'] = picDataQ4['外貌F'].astype(np.str) + picDataQ4['内涵F'].astype(np.str) + picDataQ4['资本F'].astype(np.str) 
+picDataQ4['typeF'] = picDataQ4['外貌F'].astype(np.str) + picDataQ4['内涵F'].astype(np.str) + picDataQ4['资本F'].astype(np.str)
 
-picDataQ4 = picDataQ4[['m','f','typeM','typeF']]
+picDataQ4 = picDataQ4[['m', 'f', 'typeM', 'typeF']]
 # 筛选字段
 
 print(picDataQ4.head())
 # %%
 # 匹配成功率计算
 
-success_n = len(picDataQ4)
-success_chance = picDataQ4.groupby(['typeM','typeF']).count().reset_index()
-success_chance['chance'] = success_chance['m']/success_n
-success_chance['alpha'] = (success_chance['chance'] - success_chance['chance'].min())/(success_chance['chance'].max() - success_chance['chance'].min())*8   # 设置alpha参数
+success_chance = picDataQ4.groupby(['typeM', 'typeF']).count().reset_index()
+success_chance['chance'] = success_chance['m'] / len(picDataQ4)
+success_chance['alpha'] = (success_chance['chance'] - success_chance['chance'].min()) / (success_chance['chance'].max() - success_chance['chance'].min()) * 8 
+   # 设置alpha参数
 success_chance.head()
 
 # %%
 # bokeh绘图
 output_file("PJ14Q4_2.html")
 
-mlst = success_chance['type_m'].value_counts().index.tolist()
-flst = success_chance['type_f'].value_counts().index.tolist()
+mlst = success_chance['typeM'].value_counts().index.tolist()
+flst = success_chance['typeF'].value_counts().index.tolist()
 source = ColumnDataSource(success_chance)    # 创建数据
-hover = HoverTool(tooltips=[("男性类别", "@type_m"),
-                           ("女性类别","@type_f"),
-                           ("匹配成功率","@chance")]) # 设置标签显示内容
+hover = HoverTool(tooltips=[("男性类别", "@typeM"),
+                            ("女性类别", "@typeF"),
+                            ("匹配成功率", "@chance")])  # 设置标签显示内容
 
-p = figure(plot_width=800, plot_height=800,x_range = mlst, y_range = flst,
-           title="不同类型男女配对成功率" ,x_axis_label = '男', y_axis_label = '女',    # X,Y轴label
-           tools= [hover,'reset,wheel_zoom,pan,lasso_select'])   # 构建绘图空间
+p = figure(plot_width=800, plot_height=800, x_range=mlst, y_range=flst,
+           title="不同类型男女配对成功率", x_axis_label='男', y_axis_label='女',    # X,Y轴label
+           tools=[hover, 'reset,wheel_zoom,pan,lasso_select'])   # 构建绘图空间
 
-p.square_cross(x = 'type_m', y = 'type_f', source = source,size = 18 ,color = 'red',alpha = 'alpha')
+p.square_cross(x='typeM', y='typeF', size=18, color='red', alpha='alpha', source=source)
 # 绘制点
 
 p.ygrid.grid_line_dash = [6, 4]
@@ -668,6 +671,8 @@ p.xaxis.major_label_orientation = "vertical"
 
 show(p)
 
+# %%
+del p
 
 
 
