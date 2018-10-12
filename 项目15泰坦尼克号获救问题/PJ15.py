@@ -125,11 +125,11 @@ plt.subplots_adjust(wspace=0.1)
 
 ax1 = figQ23.add_subplot(1, 2, 1)
 sns.violinplot(x='Pclass', y='Age', hue='Survived', data=picDataQ23,
-               split=True, palette=['#FF9273', '#00B454'], scale = 'count')
+               split=True, palette=['#FF9273', '#00B454'], scale='count')
 
 ax2 = figQ23.add_subplot(1, 2, 2)
 sns.violinplot(x='Sex', y='Age', hue='Survived', data=picDataQ23,
-               split=True, palette=['#FF9273', '#00B454'], scale = 'count')
+               split=True, palette=['#FF9273', '#00B454'], scale='count')
 
 plt.savefig('PJ15Q2.3.png', dpi=200)
 del picDataQ23
@@ -137,24 +137,15 @@ del picDataQ23
 picDataQ24 = picDataQ2[['Age', 'Survived']]
 picDataQ24 = picDataQ24[picDataQ24["Age"].notnull()]
 picDataQ24['Age'] = picDataQ24['Age'].astype('int')
-picDataQ24 = picDataQ24.groupby('Age').agg(['count','sum'])
-picDataQ24.columns = ['count','sum']
-picDataQ24['survived'] = picDataQ24['sum']/picDataQ24['count']
+picDataQ24 = picDataQ24.groupby('Age').agg(['count', 'sum'])
+picDataQ24.columns = ['count', 'sum']
+picDataQ24['survived'] = picDataQ24['sum'] / picDataQ24['count']
 
-figQ24 = plt.figure(figsize=(14,4))
+figQ24 = plt.figure(figsize=(14, 4))
 sns.barplot(x=picDataQ24.index, y="survived", data=picDataQ24,
-            palette = 'BuPu', edgecolor='black')
+            palette='BuPu', edgecolor='black')
 plt.grid(color='grey', linestyle=':', linewidth=1, axis='both')
 plt.savefig('PJ15Q2.4.png', dpi=200)
-del picDataQ24,picDataQ2
+del picDataQ24, picDataQ2
 # %% 3
 picDataQ3 = trainData[['Survived', 'SibSp', 'Parch']]
-
-
-
-
-
-
-
-
-
