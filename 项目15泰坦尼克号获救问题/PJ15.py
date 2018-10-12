@@ -18,11 +18,10 @@ sns.set_style("white",{"font.sans-serif":['simhei','Arial']})
 # sns.set_context("talk")
 plt.rcParams['axes.unicode_minus'] = False
 
-# os.chdir('D:/user/Documents/00code/spyder_exam/项目15泰坦尼克号获救问题/输出')
-os.chdir('D:/user/Documents/00code/spyder_exam/项目15泰坦尼克号获救问题')
-# os.chdir('/home/qweerer/0code/spyder_exam/项目15泰坦尼克号获救问题')
+# os.chdir('D:/user/Documents/00code/spyder_exam/项目15泰坦尼克号获救问题')
+os.chdir('/home/qweerer/0code/spyder_exam/项目15泰坦尼克号获救问题')
 
-# pathPj15 = os.path.abspath('.')
+pathPj15 = os.path.abspath('.')
 print('导入模块完成')
 
 #################################
@@ -46,7 +45,7 @@ plt.pie(picDataQ1,
 
 print('存活比例为%.2f%%'%( (picDataQ1['获救']*100) / (picDataQ1['未能获救'] + picDataQ1['获救']) ))
 
-os.chdir('D:/user/Documents/00code/spyder_exam/项目15泰坦尼克号获救问题/输出')
+os.chdir('%s/输出'%pathPj15)
 plt.savefig('PJ15Q1.png', dpi=200)
 
 del picDataQ1
@@ -59,7 +58,7 @@ del picDataQ1
 ③ 老人和小孩存活情况
 '''
 # %% 2.1 年龄
-picDataQ2 = trainData[['Age','Sex','Survived']]
+picDataQ2 = trainData[['Age','Sex','Survived', 'Pclass']]
 
 picDataQ21 = picDataQ2[['Age', 'Survived']].dropna(axis=0, how='any')
 
