@@ -642,8 +642,8 @@ print(picDataQ4.head())
 
 success_chance = picDataQ4.groupby(['typeM', 'typeF']).count().reset_index()
 success_chance['chance'] = success_chance['m'] / len(picDataQ4)
-success_chance['alpha'] = (success_chance['chance'] - success_chance['chance'].min()) / (success_chance['chance'].max() - success_chance['chance'].min()) * 8 
-   # 设置alpha参数
+success_chance['alpha'] = (success_chance['chance'] - success_chance['chance'].min()) / (success_chance['chance'].max() - success_chance['chance'].min()) * 8
+# 设置alpha参数
 success_chance.head()
 
 # %%
@@ -673,9 +673,3 @@ show(p)
 
 # %%
 del p
-
-
-
-
-
-

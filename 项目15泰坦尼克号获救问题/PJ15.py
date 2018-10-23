@@ -1,25 +1,21 @@
 # -*- coding: utf-8 -*-
 # %%
 import os
-import time
 
-import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
 from pylab import mpl
 import seaborn as sns
 
-
-# 导入图表绘制、图标展示模块
+from sklearn import neighbors
 
 mpl.rcParams['font.sans-serif'] = ['SimHei']  # 指定默认字体
 sns.set_style("white", {"font.sans-serif": ['simhei', 'Arial']})
-# sns.set_context("talk")
 plt.rcParams['axes.unicode_minus'] = False
 
-# os.chdir('D:/user/Documents/00code/spyder_exam/项目15泰坦尼克号获救问题')
-os.chdir('/home/qweerer/0code/spyder_exam/项目15泰坦尼克号获救问题')
+os.chdir('D:/user/Documents/00code/spyder_exam/项目15泰坦尼克号获救问题')
+# os.chdir('/home/qweerer/0code/spyder_exam/项目15泰坦尼克号获救问题')
 
 pathPj15 = os.path.abspath('.')
 print('导入模块完成')
@@ -264,7 +260,7 @@ plt.title('不同亲戚数量的存活比例')
 plt.savefig('PJ15Q3.3.png', dpi=200)
 
 del picDataQ32, picDataQ3
-# %%
+# %% Q4
 picDataQ4 = trainData[['Survived', 'Pclass', 'Fare']]
 
 figQ41 = plt.figure(figsize=(16, 6))
@@ -290,4 +286,30 @@ plt.savefig('PJ15Q4.2.png', dpi=200)
 
 del picDataQ4
 
+# %% Q5
+
+dataQ5Known = trainData[['Survived', 'Pclass', 'Fare', 'Sex', 'Age', 'Parch', 'SibSp']].dropna()
+dataQ5Known['Sex'][dataQ5Known['Sex'] == 'male'] = 1
+dataQ5Known['Sex'][dataQ5Known['Sex'] == 'female'] = 0
+dataQ5Known['Family_Size'] = dataQ5Known['Parch'] + dataQ5Known['SibSp'] + 1
+
+dataQ5Test = testData[['Pclass', 'Fare', 'Sex', 'Age', 'Parch', 'SibSp']].dropna()
+dataQ5Test['Sex'][dataQ5Test['Sex'] == 'male'] = 1
+dataQ5Test['Sex'][dataQ5Test['Sex'] == 'female'] = 0
+dataQ5Test['Family_Size'] = dataQ5Test['Parch'] + dataQ5Test['SibSp'] + 1
+
+print('清洗后训练集样本数据量为%i个' % len(dataQ5Known))
+print(dataQ5Known.head(20))
+
+print('清洗后测试集样本数据量为%i个' % len(dataQ5Test))
+print(dataQ5Test.head(20))
+
 # %%
+
+knn = neighbors.KNeighborsClassifier()
+knn.fit(dataQ5Known[['Pclass', 'Fare', 'Sex', 'Age', 'Family_Size']], dataQ5Known['Survived'])
+# 构建模型
+
+dataQ5Test['predict'] = knn.predict(dataQ5Test[['Pclass', 'Fare', 'Sex', 'Age', 'Family_Size']])
+print('finished!')
+print(dataQ5Test[dataQ5Test['predict'] == 1])
